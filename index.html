@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planım – günlük ve haftalık planlayıcı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f1f4f9;--sf:#fff;--ink:#14203a;--mute:#65718a;--line:#dce2ee;--ac:#2f4fd8;--acx:#fff;--soft:#e7ecfa;--ok:#2b9a69;--star:#e0a100;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1424;--sf:#171f38;--ink:#e8ecf8;--mute:#96a2bd;--line:#29335a;--ac:#8097ff;--acx:#0e1424;--soft:#212b50;--ok:#46c58f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1424;--sf:#171f38;--ink:#e8ecf8;--mute:#96a2bd;--line:#29335a;--ac:#8097ff;--acx:#0e1424;--soft:#212b50;--ok:#46c58f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--sf);border-radius:10px;padding:8px 13px}
+button:hover{border-color:var(--ac)}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.app{max-width:1320px;margin:0 auto;padding:22px clamp(14px,3vw,32px) 56px}
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between}
+h1,h2,.dn{font-family:"Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em}
+h1{font-size:clamp(30px,5.2vw,48px);line-height:1.05;margin:0;font-weight:700}
+h2{font-size:20px;margin:0 0 12px;font-weight:700}
+.sub{color:var(--mute);margin:6px 0 0}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:var(--soft);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px}
+.seg .on{background:var(--ac);color:var(--acx)}
+.sum{display:flex;align-items:center;gap:14px;margin-top:22px;color:var(--mute);white-space:nowrap}
+.bar{height:4px;background:var(--line)}
+.bar i{display:block;height:100%;background:var(--ok);transition:width .35s}
+.bar.big{flex:1;height:10px;border-radius:6px;overflow:hidden}
+.legend{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:14px;color:var(--mute);font-size:14px}
+.legend button{padding:4px 10px;border-radius:99px;font-size:14px;display:flex;align-items:center;gap:6px}
+.legend .on{background:var(--soft);border-color:var(--ac);color:var(--ink)}
+.legend i,.meta em:before{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c)}
+.week{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px}
+@media(min-width:1180px){.week{grid-template-columns:repeat(7,minmax(0,1fr))}}
+.day{background:var(--sf);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;min-height:230px}
+.day.today{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.day.drag{outline:2px dashed var(--ac);outline-offset:-5px;background:var(--soft)}
+.dh{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-radius:0;background:none;padding:12px 14px 8px;text-align:left}
+.wd{font-weight:600}
+.dn{font-size:22px;font-weight:700;min-width:36px;height:36px;display:grid;place-items:center;border-radius:50%}
+.today .dn{background:var(--ac);color:var(--acx)}
+.tl{list-style:none;margin:0;padding:6px 8px;flex:1;display:flex;flex-direction:column;gap:2px}
+.task{display:flex;gap:8px;align-items:flex-start;padding:7px 6px;border-radius:10px}
+.task:hover{background:var(--soft)}
+.chk{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--c,var(--mute));padding:0;margin-top:1px;background:none;color:#fff;font-size:13px;line-height:1;display:grid;place-items:center}
+.done .chk{background:var(--c,var(--ok))}
+.tb{flex:1;min-width:0}
+.tt{word-break:break-word;cursor:text}
+.done .tt{text-decoration:line-through;color:var(--mute)}
+.week .tt{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--mute)}
+.meta b{color:var(--ink);font-weight:600}
+.meta em{font-style:normal;display:flex;align-items:center;gap:5px}
+.ic{border:0;background:none;padding:2px 5px;color:var(--mute);border-radius:6px;line-height:1.2}
+.ic.on{color:var(--star)}
+@media(hover:hover){.week .ic:not(.on){opacity:0}.week .task:hover .ic,.week .task:focus-within .ic{opacity:1}}
+.addin,.line{width:100%;border:0;border-top:1px solid var(--line);background:none;padding:11px 14px;outline-offset:-2px}
+.line{border:1px solid var(--line);border-radius:10px;margin-top:10px;padding:9px 12px}
+.ed{width:100%;border:1px solid var(--ac);border-radius:8px;background:var(--sf);padding:3px 8px}
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:12px}
+.panel{background:var(--sf);border:1px solid var(--line);border-radius:16px;padding:16px}
+.goals{list-style:none;margin:0;padding:0}
+.goals li{display:flex;gap:10px;align-items:center;padding:5px 0}
+.goals .tt{flex:1}
+textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:10px 12px}
+.carry{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--soft);border-radius:12px;padding:10px 14px;margin-top:16px}
+.dv{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;margin-top:22px;align-items:start}
+@media(max-width:860px){.dv{grid-template-columns:1fr}}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
+.addrow input,.addrow select{border:1px solid var(--line);border-radius:10px;background:var(--sf);padding:9px 12px}
+#nt{flex:1 1 240px}
+.pri{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+.dv .tl{background:var(--sf);border:1px solid var(--line);border-radius:16px;padding:8px;margin-top:14px}
+.dv .task{padding:11px 8px;font-size:17px}
+.empty{color:var(--mute);margin:28px 4px}
+aside{display:grid;gap:12px}
+.ringp{display:flex;align-items:center;gap:16px}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.strip button{padding:6px 0;display:flex;flex-direction:column;align-items:center;font-size:12px;line-height:1.3}
+.strip b{font-size:16px}
+.strip .t{border-color:var(--ac)}
+.strip .on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app" id="app"></main>
+<script>
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,"0");
+const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=k=>{const[a,b,c]=k.split("-").map(Number);return new Date(a,b-1,c)};
+const add=(k,n)=>{const d=parse(k);d.setDate(d.getDate()+n);return key(d)};
+const wstart=k=>add(k,-((parse(k).getDay()+6)%7));
+const fmt=(k,o)=>parse(k).toLocaleDateString("tr-TR",o);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9),TODAY=()=>key(new Date());
+const isoWk=k=>{const d=parse(k);d.setDate(d.getDate()+3-((d.getDay()+6)%7));const y=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-y)/864e5-3+((y.getDay()+6)%7))/7)};
+const CATS={is:["İş","#3b6fd8"],kisisel:["Kişisel","#2f9e6e"],saglik:["Sağlık","#e0654f"],ogrenme:["Öğrenme","#8a5cd6"],ev:["Ev","#d89a1f"]};
+const LS="planner-v1";let S,editing=null,drag=null,ref=null,tm;
+function seed(){const t=TODAY(),w=wstart(t),m=(d,title,cat,time,star)=>({id:uid(),date:add(w,d),title,cat,time:time||"",star:!!star,done:false});
+return{tasks:[m(0,"Haftalık planı gözden geçir","is","09:00",1),m(1,"30 dakika yürüyüş","saglik","18:30"),m(2,"Market alışverişi","ev"),m(3,"İngilizce: 20 yeni kelime","ogrenme","20:00"),m(4,"Hafta sonu için plan yap","kisisel")],notes:{},goals:{},ui:{view:"week",d:t,cat:"is"}}}
+try{S=JSON.parse(localStorage.getItem(LS))}catch(e){}
+S=S||seed();S.tasks=S.tasks||[];S.notes=S.notes||{};S.goals=S.goals||{};S.ui=Object.assign({view:"week",cat:"is"},S.ui,{d:TODAY()});
+const isDark=()=>S.ui.theme?S.ui.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+async function push(){if(ref)try{await ref.set({json:JSON.stringify(S),u:S.u})}catch(e){}}
+function save(){S.u=Date.now();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}clearTimeout(tm);tm=setTimeout(push,700)}
+(async()=>{try{if(!window.claude)return;const[db,user]=await Promise.all([claude.use("db"),claude.use("user")]);if(!db||!user)return;const id=await user.id();if(!id)return;
+ref=db.collection("data/users/"+id).doc("planner");const s=await ref.get(),d=s.exists&&s.data();
+if(d&&d.u>(S.u||0)){const r=JSON.parse(d.json);r.ui=S.ui;S=r;render()}else push()}catch(e){}})();
+const tasksOn=k=>S.tasks.filter(t=>t.date===k),gk=()=>"w"+wstart(S.ui.d),gl=()=>S.goals[gk()]||(S.goals[gk()]=[]);
+const sorted=a=>[...a].sort((x,y)=>(x.done-y.done)||((x.time||"99")<(y.time||"99")?-1:(x.time||"99")>(y.time||"99")?1:0));
+const overdue=()=>{const T=TODAY();return S.tasks.filter(x=>!x.done&&x.date<T&&x.date>=add(T,-14))};
+function addTask(date,v,time,cat){v=v.trim();if(!v)return;const m=v.match(/^(\d{1,2})[:.](\d{2})\s+(.+)/);
+if(m&&+m[1]<24&&+m[2]<60){v=m[3];time=pad(+m[1])+":"+m[2]}
+S.ui.cat=cat||S.ui.cat;S.tasks.push({id:uid(),date,title:v,time:time||"",cat:S.ui.cat,star:false,done:false});save()}
+function task(t,dr){const c=CATS[t.cat]||CATS.is;
+return`<li class="task${t.done?" done":""}" data-id="${t.id}" style="--c:${c[1]}"${dr?' draggable="true"':""}><button class="chk" data-a="toggle" aria-pressed="${t.done}" aria-label="Tamamlandı olarak işaretle">${t.done?"✓":""}</button><div class="tb">${editing===t.id?`<input class="ed" value="${esc(t.title)}" aria-label="Görevi düzenle">`:`<span class="tt" data-a="edit" title="${esc(t.title)}">${esc(t.title)}</span>`}<span class="meta">${t.time?`<b>${t.time}</b>`:""}<em>${c[0]}</em></span></div><button class="ic${t.star?" on":""}" data-a="star" aria-label="Önemli" title="Önemli">★</button><button class="ic" data-a="push" aria-label="Yarına ertele" title="Yarına ertele">⇥</button><button class="ic" data-a="del" aria-label="Sil" title="Sil">×</button></li>`}
+function render(){
+const u=S.ui,T=TODAY(),wk=u.view==="week",ws=wstart(u.d),we=add(ws,6),pd=parse(ws),rt=document.documentElement;
+u.theme?rt.dataset.theme=u.theme:delete rt.dataset.theme;
+const dm={day:"numeric",month:"long"};
+const title=wk?(pd.getMonth()===parse(we).getMonth()?pd.getDate()+" – "+fmt(we,dm):fmt(ws,dm)+" – "+fmt(we,dm)):fmt(u.d,{day:"numeric",month:"long",weekday:"long"});
+const sub=wk?pd.getFullYear()+", "+isoWk(ws)+". hafta":parse(u.d).getFullYear()+(u.d===T?", bugün":"");
+const od=overdue(),carry=od.length&&(wk?ws===wstart(T):u.d===T)?`<div class="carry"><span>Geçmiş günlerden ${od.length} tamamlanmamış görev var.</span><button data-a="carry">Bugüne taşı</button></div>`:"";
+const cats=Object.entries(CATS);let body;
+if(wk){
+const wt=S.tasks.filter(x=>x.date>=ws&&x.date<=we),wd=wt.filter(x=>x.done).length;
+body=`${carry}<div class="sum"><div class="bar big"><i style="width:${wt.length?wd/wt.length*100:0}%"></i></div><span>${wd}/${wt.length} görev tamamlandı</span></div>
+<div class="legend"><span>Yeni görev kategorisi:</span>${cats.map(([k,c])=>`<button data-a="cat" data-c="${k}" class="${u.cat===k?"on":""}"><i style="--c:${c[1]}"></i>${c[0]}</button>`).join("")}</div>
+<div class="week">${[0,1,2,3,4,5,6].map(i=>{const k=add(ws,i),ts=sorted(tasksOn(k)),d=ts.filter(x=>x.done).length;
+return`<section class="day${k===T?" today":""}" data-day="${k}"><button class="dh" data-a="open" data-k="${k}"><span class="wd">${fmt(k,{weekday:"long"})}</span><span class="dn">${parse(k).getDate()}</span></button><div class="bar"><i style="width:${ts.length?d/ts.length*100:0}%"></i></div><ul class="tl">${ts.map(x=>task(x,1)).join("")}</ul><input class="addin" data-k="${k}" placeholder="Görev ekle" aria-label="${fmt(k,{weekday:"long"})} için görev ekle"></section>`}).join("")}</div>
+<div class="panels"><div class="panel"><h2>Haftanın hedefleri</h2><ul class="goals">${gl().map(g=>`<li class="${g.done?"done":""}"><button class="chk" style="--c:var(--ok)" data-a="gt" data-g="${g.id}" aria-pressed="${g.done}">${g.done?"✓":""}</button><span class="tt">${esc(g.t)}</span><button class="ic" data-a="gx" data-g="${g.id}" aria-label="Hedefi sil">×</button></li>`).join("")}</ul><input id="ng" class="line" placeholder="Bu hafta neyi başarmak istiyorsun?"></div>
+<div class="panel"><h2>Hafta notu</h2><textarea data-n="${gk()}" placeholder="Bu hafta için notlar, fikirler, hatırlatmalar…">${esc(S.notes[gk()]||"")}</textarea></div></div>`}
+else{
+const ts=sorted(tasksOn(u.d)),d=ts.filter(x=>x.done).length,p=ts.length?Math.round(d/ts.length*100):0,C=2*Math.PI*34;
+body=`<div class="dv"><div><div class="addrow"><input id="nt" placeholder="Yeni görev, ör. 14:30 Diş randevusu"><input id="ntime" type="time" aria-label="Saat"><select id="ncat" aria-label="Kategori">${cats.map(([k,c])=>`<option value="${k}"${u.cat===k?" selected":""}>${c[0]}</option>`).join("")}</select><button class="pri" data-a="addd">Ekle</button></div>${carry}
+${ts.length?`<ul class="tl">${ts.map(x=>task(x,0)).join("")}</ul>`:`<p class="empty">Bu gün henüz boş. İlk görevini yukarıdan ekle.</p>`}</div>
+<aside><div class="panel ringp"><svg width="88" height="88" viewBox="0 0 88 88" role="img" aria-label="%${p} tamamlandı"><circle cx="44" cy="44" r="34" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="44" cy="44" r="34" fill="none" stroke="var(--ok)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C*p/100} ${C}" transform="rotate(-90 44 44)"/><text x="44" y="50" text-anchor="middle" font-size="19" font-weight="700" fill="currentColor">%${p}</text></svg><div><b>${d}/${ts.length}</b> görev tamam<p class="sub">${ts.length&&d===ts.length?"Harika, gün tamam.":ts.length?ts.length-d+" görev kaldı":"Plan boş"}</p></div></div>
+<div class="panel"><div class="strip">${[0,1,2,3,4,5,6].map(i=>{const k=add(ws,i),n=tasksOn(k).length;return`<button data-a="pick" data-k="${k}" class="${k===u.d?"on":""}${k===T?" t":""}"><span>${fmt(k,{weekday:"short"})}</span><b>${parse(k).getDate()}</b><small>${n||"&nbsp;"}</small></button>`}).join("")}</div></div>
+<div class="panel"><h2>Günün notu</h2><textarea data-n="${u.d}" placeholder="Bugün için notlar…">${esc(S.notes[u.d]||"")}</textarea></div></aside></div>`}
+$("#app").innerHTML=`<header class="top"><div><h1>${title}</h1><p class="sub">${sub}</p></div><div class="ctl"><button data-a="prev" aria-label="Önceki">‹</button><button data-a="today">Bugün</button><button data-a="next" aria-label="Sonraki">›</button><div class="seg"><button data-a="view" data-v="day" class="${wk?"":"on"}">Gün</button><button data-a="view" data-v="week" class="${wk?"on":""}">Hafta</button></div><button data-a="theme" aria-label="Temayı değiştir">${isDark()?"☀":"☾"}</button></div></header>${body}`}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,li=b.closest("[data-id]"),t=li&&S.tasks.find(x=>x.id===li.dataset.id),u=S.ui;
+if(a==="prev"||a==="next")u.d=add(u.d,(a==="next"?1:-1)*(u.view==="week"?7:1));
+else if(a==="today")u.d=TODAY();else if(a==="view")u.view=b.dataset.v;
+else if(a==="open"){u.d=b.dataset.k;u.view="day"}else if(a==="pick")u.d=b.dataset.k;
+else if(a==="theme")u.theme=isDark()?"light":"dark";else if(a==="cat")u.cat=b.dataset.c;
+else if(a==="toggle")t.done=!t.done;else if(a==="star")t.star=!t.star;
+else if(a==="push")t.date=add(t.date,1);else if(a==="del")S.tasks=S.tasks.filter(x=>x!==t);
+else if(a==="edit"){editing=t.id;render();const i=$(".ed");if(i){i.focus();i.select()}return}
+else if(a==="addd"){submitDay();return}
+else if(a==="carry"){const T=TODAY();overdue().forEach(x=>x.date=T)}
+else if(a==="gt"){const g=gl().find(x=>x.id===b.dataset.g);g.done=!g.done}
+else if(a==="gx")S.goals[gk()]=gl().filter(x=>x.id!==b.dataset.g);
+save();render()});
+function submitDay(){const i=$("#nt");if(!i||!i.value.trim())return;addTask(S.ui.d,i.value,$("#ntime").value,$("#ncat").value);render();$("#nt").focus()}
+document.addEventListener("keydown",e=>{const el=e.target,cl=el.classList;
+if(e.key==="Enter"){
+if(cl.contains("addin")){const k=el.dataset.k;addTask(k,el.value);render();const n=$('.addin[data-k="'+k+'"]');n&&n.focus()}
+else if(el.id==="nt")submitDay();
+else if(el.id==="ng"&&el.value.trim()){gl().push({id:uid(),t:el.value.trim(),done:false});save();render();$("#ng").focus()}
+else if(cl.contains("ed"))el.blur()}
+else if(e.key==="Escape"&&cl.contains("ed")){editing=null;render()}
+else if(!/INPUT|TEXTAREA|SELECT/.test(el.tagName)&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){S.ui.d=add(S.ui.d,(e.key==="ArrowRight"?1:-1)*(S.ui.view==="week"?7:1));render()}});
+document.addEventListener("focusout",e=>{if(editing&&e.target.classList.contains("ed")){const t=S.tasks.find(x=>x.id===editing),v=e.target.value.trim();if(t&&v)t.title=v;editing=null;save();render()}});
+document.addEventListener("input",e=>{const n=e.target.dataset.n;if(n){S.notes[n]=e.target.value;save()}});
+document.addEventListener("dragstart",e=>{const li=e.target.closest&&e.target.closest(".task");if(li){drag=li.dataset.id;e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",drag)}});
+document.addEventListener("dragover",e=>{const d=e.target.closest&&e.target.closest(".day");if(d&&drag){e.preventDefault();document.querySelectorAll(".drag").forEach(x=>x!==d&&x.classList.remove("drag"));d.classList.add("drag")}});
+document.addEventListener("drop",e=>{const d=e.target.closest&&e.target.closest(".day");if(d&&drag){e.preventDefault();const t=S.tasks.find(x=>x.id===drag);if(t)t.date=d.dataset.day;drag=null;save();render()}});
+document.addEventListener("dragend",()=>{drag=null;document.querySelectorAll(".drag").forEach(x=>x.classList.remove("drag"))});
+render();
+</script>
+</body>
+</html>
